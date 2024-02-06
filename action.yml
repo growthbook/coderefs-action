@@ -32,7 +32,7 @@ runs:
       run: |
         echo "flags.json" >> .gbignore
     - name: GrowthBook Code References
-      uses: growthbook/coderefs-standalone-action@2.11.5
+      uses: growthbook/coderefs-standalone-action@2.11.5-11
       with:
         flagsPath: flags.json
         dir: ${{ github.workspace }}
