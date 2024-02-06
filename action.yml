@@ -1,0 +1,49 @@
+name: GrowthBook Code References
+description: Find references to feature flags in your code and send them to GrowthBook.
+author: GrowthBook
+branding:
+  icon: toggle-right
+  color: purple
+inputs:
+  apiHost:
+    description: "The URL to your GrowthBook API host. Defaults to API URL for Cloud users (https://api.growthbook.io)."
+    required: false
+  apiKey:
+    description: "The secret key provided by your GrowthBook organization."
+    required: true
+  contextLines: 
+    default: "2"
+    description: "The number of context lines to include with each code reference. If 0, only the lines containing flag references will be sent. If > 0, will include that number of context lines above and below the flag reference. A maximum of 5 context lines may be provided. (default 2)"
+  debug: 
+    default: "false"
+    description: "Enable verbose debug logging."
+    required: false
+  lookback: 
+    default: "10"
+    description: "Set the number of commits to search in history for whether you removed a feature flag from code. You may set to 0 to disable this feature. Setting this option to a high value will increase search time."
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - name: Fetch Data
+      run: |
+        curl -H "Authorization: Bearer ${{ inputs.apiKey }}" "${{ inputs.apiHost }}/api/v1/feature-keys" -o flags.json
+    - name: Add .gbignore to avoid scanning flags.json
+      run: |
+        echo "flags.json" >> .gbignore
+    - name: GrowthBook Code References
+      uses: growthbook/coderefs-standalone-action@2.11.5
+      with:
+        flagsPath: flags.json
+        dir: ${{ github.workspace }}
+        # head_ref only available on pull request eventss, ref_name for push events
+        branch: ${{ github.head_ref || github.ref_name }} 
+        repoName: ${{ github.repository }}
+        # TODO add other inputs here
+    - name: Upload coderefs.json
+      run: |
+        if test -f "coderefs.json"; then
+          curl -XPOST -H "Authorization: Bearer ${{ inputs.apiKey }}" -H "Content-Type: application/json" -d @coderefs.json "${{ inputs.apiHost }}/api/v1/code-refs"
+        else
+          echo "No coderefs.json file found."
+        fi
