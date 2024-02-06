@@ -28,9 +28,11 @@ runs:
     - name: Fetch Data
       run: |
         curl -H "Authorization: Bearer ${{ inputs.apiKey }}" "${{ inputs.apiHost }}/api/v1/feature-keys" -o flags.json
+      shell: bash
     - name: Add .gbignore to avoid scanning flags.json
       run: |
         echo "flags.json" >> .gbignore
+      shell: bash
     - name: GrowthBook Code References
       uses: growthbook/coderefs-standalone-action@2.11.5-12
       with:
@@ -47,3 +49,4 @@ runs:
         else
           echo "No coderefs.json file found."
         fi
+      shell: bash
