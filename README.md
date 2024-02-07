@@ -1,14 +1,49 @@
-# coderefs-action
+# GrowthBook Code References with GitHub Actions
 
-A composite action that leverages the `gb-find-code-refs` utility (via coderefs-standalone github action) to scan for code references and submit to GrowthBook.
+This GitHub Action can be used with GrowthBook to scan your codebase for feature flag references and have them surfaced in your GrowthBook UI.
+
+## Configuration
+
+Create a new Actions workflow in your selected GitHub repository (e.g. `code-references.yml`) in the `.github/workflows` directory of your repository. Under "Edit new file", paste the following code:
+
+```yaml
+name: Find feature flag code references
+on:
+    pull_request:
+        branches:
+            - main
+jobs:
+    codeRefs:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  # This value must be set if the lookback configuration option is
+                  # defined for find-code-refs. Read more:
+                  # https://github.com/growthbook/gb-find-code-refs#searching-for-unused-flags-extinctions
+                  fetch-depth: 11
+            - name: GrowthBook Code References
+              uses: growthbook/coderefs-action@2.11.5-13
+              with:
+                  apiKey: ${{ secrets.GB_API_TOKEN }}
+                  apiHost: ${{ secrets.GB_API_HOST }}
+```
+
+<!-- action-docs-inputs -->
 
 ## Inputs
 
--   `apiKey`
--   `apiHost`
+| parameter    | description                                                                                                                                                                                                                                                                                                                                                                                                                     | required | default         |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------- |
+| flagsPath    | Path to JSON file containing an array of feature key strings.                                                                                                                                                                                                                                                                                                                                                                   | `true`   |                 |
+| dir          | Path to directory containing codebase to be scanned.                                                                                                                                                                                                                                                                                                                                                                            | `true`   |                 |
+| branch       | Name of the branch.                                                                                                                                                                                                                                                                                                                                                                                                             | `true`   |                 |
+| outFile      | Set the filename of the output JSON containing all code references. Defaults to 'coderefs.json'.                                                                                                                                                                                                                                                                                                                                | `false`  | 'coderefs.json' |
+| repoName     | Define the repo name so that it is included in the output JSON.                                                                                                                                                                                                                                                                                                                                                                 | `false`  |                 |
+| allowTags    | Enable storing references for tags. Lists the tag as a branch.                                                                                                                                                                                                                                                                                                                                                                  | `false`  | false           |
+| contextLines | The number of context lines above and below a code reference for the job to send to GrowthBook. By default, the flag finder will not send any context lines to GrowthBook. If < 0, it will send no source code to GrowthBook. If 0, it will send only the lines containing flag references. If > 0, it will send that number of context lines above and below the flag reference. You may provide a maximum of 5 context lines. | `false`  | 2               |
+| debug        | Enable verbose debug logging.                                                                                                                                                                                                                                                                                                                                                                                                   | `false`  | false           |
+| lookback     | Set the number of commits to search in history for whether you removed a feature flag from code. You may set to 0 to disable this feature. Setting this option to a high value will increase search time.                                                                                                                                                                                                                       | `false`  | 10              |
 
-Inputs relating to `gb-find-code-refs`. Full list (here)[].
-
--   `contextLines`
--   `lookback`
--   `debug`
+<!-- action-docs-inputs -->
