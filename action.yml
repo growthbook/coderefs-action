@@ -41,7 +41,9 @@ runs:
         # head_ref only available on pull request eventss, ref_name for push events
         branch: ${{ github.head_ref || github.ref_name }} 
         repoName: ${{ github.repository }}
-        # TODO add other inputs here
+        contextLines: ${{ inputs.contextLines }}
+        debug: ${{ inputs.debug }}
+        lookback: ${{ inputs.lookback }}
     - name: Upload coderefs.json
       run: |
         if test -f "coderefs.json"; then
