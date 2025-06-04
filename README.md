@@ -13,8 +13,21 @@ on:
         branches:
             - main
 jobs:
+    validate-secrets:
+        runs-on: ubuntu-latest
+        outputs:
+            secrets-available: ${{ steps.check.outputs.available }}
+        steps:
+            - name: Check secrets
+              id: check
+              run: |
+                if ! [[ -n "${{ secrets.GB_API_TOKEN }}" && -n "${{ secrets.GB_API_HOST }}" ]]; then
+                    echo "❌ Missing required secrets: GB_API_TOKEN and/or GB_API_HOST"
+                    exit 1
+                fi
     codeRefs:
         runs-on: ubuntu-latest
+        needs: validate-secrets
         steps:
             - name: Checkout
               uses: actions/checkout@v4
