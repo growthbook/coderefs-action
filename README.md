@@ -15,8 +15,6 @@ on:
 jobs:
     validate-secrets:
         runs-on: ubuntu-latest
-        outputs:
-            secrets-available: ${{ steps.check.outputs.available }}
         steps:
             - name: Check secrets
               id: check
