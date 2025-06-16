@@ -19,11 +19,11 @@ jobs:
             - name: Check secrets
               id: check
               run: |
-                if ! [[ -n "${{ secrets.GB_API_TOKEN }}" }}" ]]; then
+                if ! [[ -n "${{ secrets.GB_API_TOKEN }}" ]]; then
                     echo "❌ Missing required secret, GB_API_TOKEN"
                     exit 1
                 fi
-                if ! [[ -n "${{ secrets.GB_API_HOST }}" }}" ]]; then
+                if ! [[ -n "${{ secrets.GB_API_HOST }}" ]]; then
                     echo "⚠️ Using default value for optional secret, GB_API_HOST"
                 fi
     codeRefs:
