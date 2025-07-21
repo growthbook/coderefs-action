@@ -22,6 +22,10 @@ inputs:
     default: "10"
     description: "Set the number of commits to search in history for whether you removed a feature flag from code. You may set to 0 to disable this feature. Setting this option to a high value will increase search time."
     required: false
+  deleteMissing:
+    default: "false"
+    description: "Whether to delete code references that are no longer found in the codebase."
+    required: false
 runs:
   using: "composite"
   steps:
@@ -47,7 +51,7 @@ runs:
     - name: Upload coderefs.json
       run: |
         if test -f "coderefs.json"; then
-          curl -XPOST -H "Authorization: Bearer ${{ inputs.apiKey }}" -H "Content-Type: application/json" -d @coderefs.json "${{ inputs.apiHost }}/api/v1/code-refs"
+          curl -XPOST -H "Authorization: Bearer ${{ inputs.apiKey }}" -H "Content-Type: application/json" -d @coderefs.json "${{ inputs.apiHost }}/api/v1/code-refs?deleteMissing=${{ inputs.deleteMissing }}"
         else
           echo "No coderefs.json file found."
         fi
