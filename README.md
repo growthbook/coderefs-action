@@ -13,8 +13,22 @@ on:
         branches:
             - main
 jobs:
+    validate-secrets:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check secrets
+              id: check
+              run: |
+                if ! [[ -n "${{ secrets.GB_API_TOKEN }}" ]]; then
+                    echo "❌ Missing required secret, GB_API_TOKEN"
+                    exit 1
+                fi
+                if ! [[ -n "${{ secrets.GB_API_HOST }}" ]]; then
+                    echo "⚠️ Using default value for optional secret, GB_API_HOST"
+                fi
     codeRefs:
         runs-on: ubuntu-latest
+        needs: validate-secrets
         steps:
             - name: Checkout
               uses: actions/checkout@v4
