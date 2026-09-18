@@ -30,8 +30,12 @@ runs:
   using: "composite"
   steps:
     - name: Fetch Data
+      # action_ref reaches a composite action's run step only via env, per
+      # GitHub's context docs. Inline `${{ }}` in `run` would always be empty.
+      env:
+        GB_ACTION_REF: ${{ github.action_ref }}
       run: |
-        curl -A "growthbook-coderefs/${{ github.action_ref || 'unknown' }}" -H "Authorization: Bearer ${{ inputs.apiKey }}" "${{ inputs.apiHost }}/api/v1/feature-keys" -o flags.json
+        curl -A "growthbook-coderefs/${GB_ACTION_REF:-unknown}" -H "Authorization: Bearer ${{ inputs.apiKey }}" "${{ inputs.apiHost }}/api/v1/feature-keys" -o flags.json
       shell: bash
     - name: Add .gbignore to avoid scanning flags.json
       run: |
@@ -49,9 +53,11 @@ runs:
         debug: ${{ inputs.debug }}
         lookback: ${{ inputs.lookback }}
     - name: Upload coderefs.json
+      env:
+        GB_ACTION_REF: ${{ github.action_ref }}
       run: |
         if test -f "coderefs.json"; then
-          curl -XPOST -A "growthbook-coderefs/${{ github.action_ref || 'unknown' }}" -H "Authorization: Bearer ${{ inputs.apiKey }}" -H "Content-Type: application/json" -d @coderefs.json "${{ inputs.apiHost }}/api/v1/code-refs?deleteMissing=${{ inputs.deleteMissing }}"
+          curl -XPOST -A "growthbook-coderefs/${GB_ACTION_REF:-unknown}" -H "Authorization: Bearer ${{ inputs.apiKey }}" -H "Content-Type: application/json" -d @coderefs.json "${{ inputs.apiHost }}/api/v1/code-refs?deleteMissing=${{ inputs.deleteMissing }}"
         else
           echo "No coderefs.json file found."
         fi
