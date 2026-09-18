@@ -31,7 +31,7 @@ runs:
   steps:
     - name: Fetch Data
       run: |
-        curl -H "Authorization: Bearer ${{ inputs.apiKey }}" "${{ inputs.apiHost }}/api/v1/feature-keys" -o flags.json
+        curl -A "growthbook-coderefs/${{ github.action_ref || 'unknown' }}" -H "Authorization: Bearer ${{ inputs.apiKey }}" "${{ inputs.apiHost }}/api/v1/feature-keys" -o flags.json
       shell: bash
     - name: Add .gbignore to avoid scanning flags.json
       run: |
@@ -51,7 +51,7 @@ runs:
     - name: Upload coderefs.json
       run: |
         if test -f "coderefs.json"; then
-          curl -XPOST -H "Authorization: Bearer ${{ inputs.apiKey }}" -H "Content-Type: application/json" -d @coderefs.json "${{ inputs.apiHost }}/api/v1/code-refs?deleteMissing=${{ inputs.deleteMissing }}"
+          curl -XPOST -A "growthbook-coderefs/${{ github.action_ref || 'unknown' }}" -H "Authorization: Bearer ${{ inputs.apiKey }}" -H "Content-Type: application/json" -d @coderefs.json "${{ inputs.apiHost }}/api/v1/code-refs?deleteMissing=${{ inputs.deleteMissing }}"
         else
           echo "No coderefs.json file found."
         fi
